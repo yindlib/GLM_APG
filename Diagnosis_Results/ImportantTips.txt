@@ -1,0 +1,5 @@
+Important Points:
+
+1) Always implement Backtracking: It hugely improves the convergence speed.
+
+2) For backtracking to work properly, you need to have the likelihood normalized with the number of observations.

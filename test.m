@@ -1,9 +1,8 @@
-% Allah
 clc
-N = 200;
-d = 10;
+N = 500;
+d = 50;
 X = rand(N, d);
-beta = [1 1 1 zeros(1, 7)]';
+beta = [1 1 1 zeros(1, d-3)]';
 beta0 = 0;
 y = X*beta +beta0 +0.2*randn(N, 1);
 
@@ -23,4 +22,4 @@ disp(G(i))
 disp((obj3-obj)/delta)
 disp(Gb)
 
-APGLasso(X, y, 0.002)
+APGLasso(X, y, 0.000002)

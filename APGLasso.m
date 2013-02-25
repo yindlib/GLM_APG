@@ -11,12 +11,13 @@ b = 0;
 t = 1;
 objs = zeros(1, Max_iter);
 for i = 1:Max_iter
-    % Perform an iteration
+    % Perform an iteration to find P_L(Y_k)
     [obj G Gb] = findGrad(X, y, beta, b);
     objs(i) = obj;
     Ybeta = beta - delta * G;
     Ybeta = (abs(Ybeta) > lambda).*(abs(Ybeta)-lambda).*sign(Ybeta);
     Yb = b - delta *Gb;
+    
     % Backtracking
     while Obj(X, y, Ybeta, Yb, lambda) > QL(obj, G, Gb, Ybeta, Yb, beta, b, delta, lambda)
         delta = delta * alpha;
@@ -40,7 +41,7 @@ for i = 1:Max_iter
         objOld = obj;
     end
 end
-plot(objs)
+plot(objs, 'g')
 
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
