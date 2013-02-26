@@ -6,20 +6,18 @@ beta = [1 1 1 zeros(1, d-3)]';
 beta0 = 0;
 y = X*beta +beta0 +0.2*randn(N, 1);
 
-[obj G Gb] = findGrad(X, y, beta, beta0);
+data.X = X;
+data.y = y;
 
-beta2= beta;
-delta = 1e-7;
-i=4;
-beta2(i) = beta2(i) + delta;
-[obj2] = findGrad(X, y, beta2, beta0);
+opt.tol = 5e-3;
+opt.Max_iter = 300;
+opt.alpha = 0.8;
+opt.delta = 1;
+opt.verbose = 2;
 
-[obj3] = findGrad(X, y, beta, beta0+delta);
+init.b = 0;
+init.beta = zeros(d, 1);
 
-disp((obj2-obj)/delta)
-disp(G(i))
-
-disp((obj3-obj)/delta)
-disp(Gb)
-
-APGLasso(X, y, 0.000002)
+par.lambda = 0.000001;
+fname = 'gaussian';
+sol = APG(fname, data, init, par, opt)
