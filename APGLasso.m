@@ -1,10 +1,10 @@
 function [beta b] = APGLasso(X, y, lambda)
-ep = 1e-6;
-Max_iter = 100;
+ep = 5e-3;
+Max_iter = 300;
 alpha = 0.8;
 delta = 1;
 
-[N d] = size(X);
+[~, d] = size(X);
 beta = zeros(d, 1);
 objOld = 0;
 b = 0;
@@ -35,13 +35,13 @@ for i = 1:Max_iter
     t = t_new;
     
     % Check for termination
-    if abs(objOld - obj) < ep
+    if abs(objOld - obj) < ep * obj
         break
     else
         objOld = obj;
     end
 end
-plot(objs, 'g')
+plot(objs)
 
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
