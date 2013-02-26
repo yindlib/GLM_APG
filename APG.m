@@ -1,4 +1,4 @@
-function sol = APG(fname, data, init, par, opt)
+function sol = APG(fname, data, init, par, opt, dextra)
 % This function finds the minimum of the function provided in 'fname' via
 % Accelerated Proximal Gradient method. It has backtracking and termination
 % implemented.
@@ -10,6 +10,7 @@ function sol = APG(fname, data, init, par, opt)
 %       par:    Hyper parameters, such as lambda in Lasso
 %       opt:    Options for the optimization such as Max_iter, initial
 %               delta, backtraking factor alpha, tolerance and verbose
+%       dextra: The extra parametes that a distribution may need
 delta = opt.delta;
 beta = init.beta;
 objOld = 0;
@@ -19,14 +20,14 @@ objs = zeros(1, opt.Max_iter);
 if opt.verbose; fprintf('Iter #: %5d', 0); end
 for i = 1:opt.Max_iter
     % Perform an iteration to find P_L(Y_k)
-    [obj G Gb] = feval(fname, data.X, data.y, beta, b);
+    [obj G Gb] = feval(fname, data.X, data.y, beta, b, dextra);
     objs(i) = obj;
     Ybeta = beta - delta * G;
     Ybeta = (abs(Ybeta) > par.lambda).*(abs(Ybeta)-par.lambda).*sign(Ybeta);
     Yb = b - delta *Gb;
     
     % Backtracking
-    while Obj(fname, data.X, data.y, Ybeta, Yb, par.lambda) > QL(obj, G, Gb, Ybeta, Yb, beta, b, delta, par.lambda)
+    while Obj(fname, data.X, data.y, Ybeta, Yb, par.lambda, dextra) > QL(obj, G, Gb, Ybeta, Yb, beta, b, delta, par.lambda)
         delta = delta * opt.alpha;
         Ybeta = beta - delta * G;
         Yb = b - delta *Gb;
@@ -71,7 +72,7 @@ out = obj + (Ybeta - beta)'*G + (Yb - b)*Gb + lam*norm(beta, 1);
 out = out + 0.5*norm(Ybeta - beta)^2/delta + 0.5/delta*(b - Yb)^2;
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function obj = Obj(fname, X, y, Ybeta, Yb, lam)
-obj = feval(fname, X, y, Ybeta, Yb);
+function obj = Obj(fname, X, y, Ybeta, Yb, lam, dextra)
+obj = feval(fname, X, y, Ybeta, Yb, dextra);
 obj = obj + lam*norm(Ybeta, 1);
 end
