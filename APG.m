@@ -1,36 +1,38 @@
-function sol = APG(fname, data, init, par, opt, dextra)
+function sol = APG(model, data, init, par, opt)
 % This function finds the minimum of the function provided in 'fname' via
 % Accelerated Proximal Gradient method. It has backtracking and termination
 % implemented.
 % INPUTS:
-%       fname:  The name of the function to be optimized.
+%       model:  The name of the model to be optimized and its extra
+%               parameters: dextra
 %       data:   Usually has two components: data.X for features and data.y
 %               for responses.
 %       init:   Initial values for the optimization variables
 %       par:    Hyper parameters, such as lambda in Lasso
 %       opt:    Options for the optimization such as Max_iter, initial
 %               delta, backtraking factor alpha, tolerance and verbose
-%       dextra: The extra parametes that a distribution may need
 delta = opt.delta;
 beta = init.beta;
 objOld = 0;
 b = init.b;
 t = 1;
+Yb = 0;
 objs = zeros(1, opt.Max_iter);
 if opt.verbose; fprintf('Iter #: %5d', 0); end
 for i = 1:opt.Max_iter
     % Perform an iteration to find P_L(Y_k)
-    [obj G Gb] = feval(fname, data.X, data.y, beta, b, dextra);
+    [obj G Gb] = feval(model.fname, data.X, data.y, beta, b, model.dextra);
+    
     objs(i) = obj;
     Ybeta = beta - delta * G;
     Ybeta = (abs(Ybeta) > par.lambda).*(abs(Ybeta)-par.lambda).*sign(Ybeta);
-    Yb = b - delta *Gb;
+    if opt.nob ~= 1; Yb = b - delta *Gb; end
     
     % Backtracking
-    while Obj(fname, data.X, data.y, Ybeta, Yb, par.lambda, dextra) > QL(obj, G, Gb, Ybeta, Yb, beta, b, delta, par.lambda)
+    while Obj(model.fname, data.X, data.y, Ybeta, Yb, par.lambda, model.dextra) > QL(obj, G, Gb, Ybeta, Yb, beta, b, delta, par.lambda)
         delta = delta * opt.alpha;
         Ybeta = beta - delta * G;
-        Yb = b - delta *Gb;
+        if opt.nob ~= 1; Yb = b - delta *Gb; end
     end
     
     t_new = (1+sqrt(1+4*t^2))/2;
@@ -55,8 +57,10 @@ for i = 1:opt.Max_iter
     end
 end
 
+
 sol.b = b;
 sol.beta = beta;
+sol.obj = obj;
 
 if opt.verbose 
     fprintf('\n')
