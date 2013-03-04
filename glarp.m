@@ -14,39 +14,46 @@ function sol = glarp(Series, model, init, par, opt, index)
 [N, T] = size(Series);
 M = length(index);
 P = par.lags;
-
-% Build the design matrix for prediction of 'index' samples
-data.X = zeros(M * N, N*(P*N + 1) );   % N time series and N*L+1 samples for each.
-data.y = zeros(M * N, 1);
-
-inT = 1:M;
-for i = 1:N
-    data.y(inT) = Series(i, index);
-    inN = (N*(i-1)+1):N*i;
-    for j = 1:P
-        data.X(inT, inN) = Series(:, (index - j))';
-        inN = inN + N^2;
-    end
-    data.X(inT, end-(N-i)) = 1;
-    inT = inT + M;
-end
-
-% Initialization
-init2.beta = zeros(N*(P*N + 1), 1);
-for j = 1:P
-    init2.beta(N^2*(j-1)+1:N^2*j) = reshape(init.A{j}', 1, N^2);
-end
-init2.beta(end-N+1:end) = init.b';
-init2.b = 0;    % Will not be used
-opt.nob = 1;
-
-% Running the APG
-solTemp = APG(model, data, init2, par, opt);
-
-% Converting the results back
+% opt.verbose = 0;    % To avoid the details of inner iterations
+obj = 0;
 sol.A = cell(P, 1);
-for j = 1:P
-    sol.A{j} = reshape(solTemp.beta( N^2*(j-1)+1:N^2*j ), N, N)';
+for i = 1:P; sol.A{i} = zeros(N); end
+sol.b = zeros(N, 1);
+opt.nob = 1;        % Not deeded anymore ############################################
+
+if opt.verboseOut; fprintf('Number of solved cases #: %5d', 0); end
+% Build the design matrix for prediction of 'index' samples
+% We can make this part parallel
+for i = 1:N     % Solving for the i^th time series
+    data.X = zeros(M, P*N);
+    data.y = Series(i, index)';
+    inN = 1:N;
+    for j = 1:P
+        data.X(:, inN) = Series(:, (index - j))';
+        inN = inN + N;
+    end
+    
+    % Initialization
+    init2.beta = zeros(P*N, 1);
+    for j = 1:P
+        init2.beta(N*(j-1)+1:N*j) = init.A{j}(i, :);
+    end
+    init2.b = init.b(i);    % Will not be used
+    
+    % Running the APG
+    solTemp = APG(model, data, init2, par, opt);
+    
+    obj = obj + solTemp.obj;
+    
+    % Converting the results back
+    for j = 1:P
+        sol.A{j}(i, :) = solTemp.beta( N*(j-1)+1:N*j )';
+    end
+    sol.b(i) = solTemp.b;
+    
+    if opt.verboseOut
+        fprintf('%c%c%c%c%c%c', 8,8,8,8,8,8);
+        fprintf('%5d ', i);
+    end
 end
-sol.b = solTemp.beta(end-N+1:end)';
-sol.obj = solTemp.obj;
+sol.obj = obj;
