@@ -56,4 +56,3 @@ for i = 1:N     % Solving for the i^th time series
         fprintf('%5d ', i);
     end
 end
-sol.obj = obj;

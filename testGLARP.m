@@ -1,7 +1,7 @@
 clc
 addpath('./models')
-T = 10000;
-N = 40;
+T = 100;
+N = 4;
 model.dextra.sigma = 1;
 model.dextra.nu = 1;
 %% Solver settings
@@ -9,7 +9,7 @@ opt.tol = 1e-4;
 opt.Max_iter = 500;
 opt.alpha = 0.8;
 opt.delta = 1;
-opt.verbose = 1;    % Don't show inner iterations
+opt.verbose = 0;    % Don't show inner iterations
 opt.verboseOut = 1; % Show the details of the outer iterations
 opt.nob = 1;
 
@@ -31,6 +31,7 @@ end
 index = 2:T;
 
 model.fname = 'gaussian';
-sol = glarp(Series, model, init, par, opt, index);
+model.sol = glarp(Series, model, init, par, opt, index);
+[err normerr] = pred(Series, model, index);
 
 % AGPLassoL(Series, 'smth')
