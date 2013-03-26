@@ -19,8 +19,6 @@ obj = 0;
 sol.A = cell(P, 1);
 for i = 1:P; sol.A{i} = zeros(N); end
 sol.b = zeros(N, 1);
-opt.nob = 1;        % Not deeded anymore ############################################
-
 if opt.verboseOut; fprintf('Number of solved cases #: %5d', 0); end
 % Build the design matrix for prediction of 'index' samples
 % We can make this part parallel
@@ -56,3 +54,12 @@ for i = 1:N     % Solving for the i^th time series
         fprintf('%5d ', i);
     end
 end
+if opt.verboseOut; fprintf('\n'); end
+
+% The model selection criteria %% Should be moved to an upper level function
+nnZ = 0;
+for i = 1:P
+    nnZ = nnZ + sum(sum(abs(sol.A{i}) > par.th));
+end
+sol.aic = obj + nnZ;
+sol.bic = obj + nnZ*log(M*N);

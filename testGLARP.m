@@ -19,6 +19,7 @@ init.A{1} = zeros(N);
 
 par.lambda = 0.00001;
 par.lags = 1;
+par.th = 0.01;
 %% Gaussian case
 A1 = [0.9, 0, 0, 0; 1, 0.9, 0, 0; 1, 0, 0.9, 0; 1, 0, 0, 0.9];
 A = kron(eye(N/4), A1);
@@ -33,5 +34,5 @@ index = 2:T;
 model.fname = 'gaussian';
 model.sol = glarp(Series, model, init, par, opt, index);
 [err normerr] = pred(Series, model, index);
-
+cverr = glarpCV(Series, model, init, par, opt, 5);
 % AGPLassoL(Series, 'smth')
