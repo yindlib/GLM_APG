@@ -11,7 +11,7 @@ model.dextra.nu = 1;
 opt.tol = 1e-4;
 opt.Max_iter = 500;
 opt.alpha = 0.8;
-opt.delta = 1;
+opt.delta = 1e-2;
 opt.verbose = 2;
 opt.nob = 1;
 

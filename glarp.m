@@ -61,5 +61,5 @@ nnZ = 0;
 for i = 1:P
     nnZ = nnZ + sum(sum(abs(sol.A{i}) > par.th));
 end
-sol.aic = obj + nnZ;
+sol.aic = obj + 2*nnZ;      % think about the value of '2' here.
 sol.bic = obj + nnZ*log(M*N);

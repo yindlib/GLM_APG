@@ -18,7 +18,7 @@ init.A = cell(1, 1);
 init.A{1} = zeros(N);
 
 par.lambda = 0.00001;
-par.lags = 1;
+par.lags = 5;
 par.th = 0.01;
 %% Gaussian case
 A1 = [0.9, 0, 0, 0; 1, 0.9, 0, 0; 1, 0, 0.9, 0; 1, 0, 0, 0.9];
