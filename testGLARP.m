@@ -18,18 +18,21 @@ init.A = cell(1, 1);
 init.A{1} = zeros(N);
 
 par.lambda = 0.00001;
-par.lags = 5;
+par.lags = 1;
 par.th = 0.01;
 %% Gaussian case
 A1 = [0.9, 0, 0, 0; 1, 0.9, 0, 0; 1, 0, 0.9, 0; 1, 0, 0, 0.9];
 A = kron(eye(N/4), A1);
 Series = zeros(N, T);
 Series(:, 1) = randn(N, 1);
-for t = 2:T
-    Series(:, t) = A*Series(:, t-1) + 0.1*randn(N, 1);
+for t = par.lags+1:T
+    Series(:, t) = 0.1*randn(N, 1);
+    for ll = 1:par.lags
+        Series(:, t) = Series(:, t) + A*Series(:, t-ll);
+    end
 end
 
-index = 2:T;
+index = par.lags+1:T;
 
 model.fname = 'gaussian';
 model.sol = glarp(Series, model, init, par, opt, index);
